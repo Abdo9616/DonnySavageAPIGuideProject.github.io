@@ -543,7 +543,7 @@
                 <ul>
                     <li>Generate an API key in Discord using: <code>/auth generate-key service:Website expiry:0</code></li>
                     <li>Enter the key below and save</li>
-                    <li>Ensure the bot's API URL is correctly set to <code>http://donnysavagebot.publicvm.com</code> in the configuration</li>
+                    <li>Ensure the bot's API URL is correctly set to <code>https://bot.api.donnysavagebot.publicvm.com</code> in the configuration</li>
                 </ul>
             </div>
             
@@ -650,7 +650,7 @@
             
             <div class="form-group" style="margin-top: 1.5rem;">
                 <label for="api-base-url"><i class="fas fa-link"></i> API Base URL</label>
-                <input type="text" id="api-base-url" placeholder="http://donnysavagebot.publicvm.com">
+                <input type="text" id="api-base-url" placeholder="https://bot.api.donnysavagebot.publicvm.com">
             </div>
             
             <div class="debug-content" id="debug-output">
@@ -696,7 +696,7 @@
         const apiStatus = document.getElementById('api-status');
         
         // API Configuration
-        let API_BASE_URL = 'http://donnysavagebot.publicvm.com';
+        let API_BASE_URL = 'https://bot.api.donnysavagebot.publicvm.com';
         
         // Initialize
         window.addEventListener('DOMContentLoaded', () => {
