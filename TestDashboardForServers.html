@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bot Dashboard Example Project</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --discord-dark: #313338;
+            --discord-darker: #1e1f22;
+            --discord-blurple: #5865F2;
+            --discord-green: #3ba55d;
+            --discord-red: #ed4245;
+            --discord-light: #f2f3f5;
+            --discord-purple: #8a2be2;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+        }
+        
+        body {
+            background: var(--discord-dark);
+            color: var(--discord-light);
+            line-height: 1.6;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--discord-darker) 0%, #1a1c21 100%);
+            background-attachment: fixed;
+        }
+        
+        header {
+            background: rgba(30, 31, 34, 0.85);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem;
+            text-align: center;
+            border-bottom: 1px solid #40444b;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        header h1 {
+            background: linear-gradient(120deg, var(--discord-blurple), var(--discord-purple));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .subtitle {
+            color: #b5bac1;
+            font-size: 1.1rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .api-key-section {
+            background: rgba(30, 31, 34, 0.7);
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+            border: 1px solid #40444b;
+            backdrop-filter: blur(5px);
+        }
+        
+        .api-key-form {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .api-key-form input {
+            flex: 1;
+            min-width: 250px;
+            padding: 0.8rem 1.2rem;
+            background: rgba(49, 51, 56, 0.7);
+            border: 1px solid #5865F2;
+            border-radius: 8px;
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .api-key-form input:focus {
+            outline: none;
+            border-color: var(--discord-purple);
+            box-shadow: 0 0 0 3px rgba(88, 101, 242, 0.3);
+        }
+        
+        .api-key-form button {
+            background: linear-gradient(120deg, var(--discord-blurple), var(--discord-purple));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0 2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .api-key-form button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(88, 101, 242, 0.4);
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .card {
+            background: rgba(30, 31, 34, 0.7);
+            border-radius: 12px;
+            padding: 1.8rem;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+            border: 1px solid #40444b;
+            backdrop-filter: blur(5px);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #40444b;
+        }
+        
+        .card-header h2 {
+            font-size: 1.4rem;
+            color: var(--discord-blurple);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .btn {
+            background: linear-gradient(120deg, var(--discord-green), #2d7d46);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.8rem 1.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 165, 93, 0.4);
+        }
+        
+        .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr)); /* Ensure columns can shrink */
+    gap: 1.2rem;
+    margin: 1rem 0;
+}
+        
+        .stat-box {
+    background: rgba(49, 51, 56, 0.5);
+    border-radius: 8px;
+    padding: 1.2rem;
+    text-align: center;
+    border: 1px solid #40444b;
+    transition: all 0.3s ease;
+    min-width: 0; /* Add this to allow shrinking */
+    overflow-wrap: break-word; /* Add this to wrap long content */
+}
+#guild-id {
+    font-size: 1.8rem; /* Slightly smaller font for long IDs */
+    word-break: break-all; /* Allow breaking anywhere in the ID */
+    overflow-wrap: anywhere; /* Wrap at any point */
+    line-height: 1.3; /* Better line spacing */
+    padding: 0 5px; /* Add some padding */
+}
+        
+        .stat-box:hover {
+            background: rgba(49, 51, 56, 0.7);
+            transform: translateY(-3px);
+        }
+        
+        .stat-value {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin: 0.5rem 0;
+            background: linear-gradient(120deg, var(--discord-blurple), var(--discord-purple));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .stat-label {
+            color: #b5bac1;
+            font-size: 0.95rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.8rem;
+            color: #b5bac1;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 0.8rem 1.2rem;
+            background: rgba(49, 51, 56, 0.7);
+            border: 1px solid #5865F2;
+            border-radius: 8px;
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--discord-purple);
+            box-shadow: 0 0 0 3px rgba(88, 101, 242, 0.3);
+        }
+        
+        .result-container {
+            margin-top: 1.5rem;
+            background: rgba(49, 51, 56, 0.5);
+            border-radius: 8px;
+            padding: 1.5rem;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #40444b;
+            flex-grow: 1;
+        }
+        
+        .error {
+            color: var(--discord-red);
+            background: rgba(237, 66, 69, 0.15);
+            border-left: 4px solid var(--discord-red);
+            padding: 1.2rem;
+            margin-top: 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        
+        .success {
+            color: var(--discord-green);
+            background: rgba(59, 165, 93, 0.15);
+            border-left: 4px solid var(--discord-green);
+            padding: 1.2rem;
+            margin-top: 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        
+        .member-info {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #40444b;
+        }
+        
+        .avatar {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--discord-blurple);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .role-badge {
+            display: inline-block;
+            background: linear-gradient(120deg, #5865F2, #8a2be2);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: #b5bac1;
+            font-size: 0.9rem;
+            margin-top: 3rem;
+            border-top: 1px solid #40444b;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .debug-section {
+            background: rgba(30, 31, 34, 0.7);
+            border-radius: 12px;
+            padding: 1.8rem;
+            margin-top: 2rem;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+            border: 1px solid #40444b;
+            backdrop-filter: blur(5px);
+        }
+        
+        .debug-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .debug-content {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 1.2rem;
+            font-family: monospace;
+            font-size: 0.9rem;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-online {
+            background: var(--discord-green);
+            box-shadow: 0 0 8px var(--discord-green);
+        }
+        
+        .status-offline {
+            background: var(--discord-red);
+        }
+        
+        .connection-test {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .test-btn {
+            background: rgba(49, 51, 56, 0.7);
+            color: white;
+            border: 1px solid #5865F2;
+            border-radius: 8px;
+            padding: 0.6rem 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .test-btn:hover {
+            background: rgba(88, 101, 242, 0.2);
+        }
+        
+        .api-status {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.3);
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.8rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 1px solid #40444b;
+        }
+        
+        .status-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+        
+        .status-icon {
+            font-size: 1.2rem;
+            margin-right: 10px;
+            width: 24px;
+            text-align: center;
+        }
+        
+        .status-success {
+            color: var(--discord-green);
+        }
+        
+        .status-failure {
+            color: var(--discord-red);
+        }
+        
+        .instructions {
+            background: rgba(59, 165, 93, 0.1);
+            border-left: 4px solid var(--discord-green);
+            padding: 1.2rem;
+            border-radius: 8px;
+            margin-top: 1.5rem;
+            font-size: 0.95rem;
+        }
+        
+        .instructions h3 {
+            color: var(--discord-green);
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .instructions ul {
+            padding-left: 1.5rem;
+            margin-top: 0.8rem;
+        }
+        
+        .instructions li {
+            margin-bottom: 0.6rem;
+        }
+        
+        code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+        
+        .member-count-container {
+            background: rgba(49, 51, 56, 0.5);
+            border-radius: 8px;
+            padding: 1.2rem;
+            text-align: center;
+            border: 1px solid #40444b;
+            margin-bottom: 1.5rem;
+        }
+        
+        @media (max-width: 900px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .stat-value {
+                font-size: 1.8rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    #guild-id {
+        font-size: 1.5rem; /* Smaller font on mobile */
+    }
+
+            
+            .stat-box {
+                padding: 1rem;
+            }
+            
+            .api-key-form {
+                flex-direction: column;
+            }
+            
+            .api-key-form button {
+                width: 100%;
+                justify-content: center;
+            }
+            .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)); /* Fix grid sizing */
+}
+
+.stat-box {
+    min-width: 0; /* Prevent overflow */
+    overflow: hidden; /* Hide any overflow */
+}
+
+.stat-value {
+    font-size: clamp(1.5rem, 2vw, 2.2rem); /* Responsive font size */
+    word-wrap: break-word; /* Allow breaking long numbers */
+}
+
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1><i class="fas fa-robot"></i> Bot Dashboard Example Project</h1>
+        <p class="subtitle">Monitor DonnySavage's performance, verify server members, and access protected resources</p>
+    </header>
+    
+    <div class="container">
+        <section class="api-key-section">
+            <h2><i class="fas fa-key"></i> API Configuration</h2>
+            <p>Enter your API key to access bot services. You can generate this key using the <code>/auth generate-key</code> command in Discord.</p>
+            
+            <div class="instructions">
+                <h3><i class="fas fa-info-circle"></i> Setup Instructions</h3>
+                <p>To get started, follow these steps:</p>
+                <ul>
+                    <li>Generate an API key in Discord using: <code>/auth generate-key service:Website expiry:0</code></li>
+                    <li>Enter the key below and save</li>
+                    <li>Ensure the bot's API URL is correctly set to <code>http://donnysavagebot.publicvm.com</code> in the configuration</li>
+                </ul>
+            </div>
+            
+            <div class="api-key-form">
+                <input type="password" id="api-key-input" placeholder="Enter your API key">
+                <button id="save-api-key">
+                    <i class="fas fa-save"></i> Save Key
+                </button>
+            </div>
+            <div id="api-key-error" class="error hidden"></div>
+            <div id="api-key-success" class="success hidden"></div>
+        </section>
+        
+        <div id="dashboard" class="dashboard hidden">
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-chart-line"></i> Bot Statistics</h2>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-value" id="guild-count">0</div>
+                        <div class="stat-label">Servers</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="user-count">0</div>
+                        <div class="stat-label">Users</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="uptime">0s</div>
+                        <div class="stat-label">Uptime</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="guild-id">-</div>
+                        <div class="stat-label">Your Server ID</div>
+                    </div>
+                </div>
+                <button id="refresh-stats" class="btn">
+                    <i class="fas fa-sync-alt"></i> Refresh Stats
+                </button>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-user-check"></i> Member Verification</h2>
+                </div>
+                
+                <div class="member-count-container">
+                    <div class="stat-value" id="member-count">0</div>
+                    <div class="stat-label">Server Members</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="user-id"><i class="fas fa-user-circle"></i> Discord User ID</label>
+                    <input type="text" id="user-id" placeholder="Enter user ID (e.g. 123456789012345678)">
+                </div>
+                <button id="verify-member" class="btn">
+                    <i class="fas fa-search"></i> Verify Member
+                </button>
+                <div id="member-result" class="result-container hidden"></div>
+                <div id="member-error" class="error hidden"></div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-shield-alt"></i> Secure Resource Access</h2>
+                </div>
+                <p>Access protected bot resources with your API key.</p>
+                <button id="get-secure-data" class="btn">
+                    <i class="fas fa-lock-open"></i> Get Secure Data
+                </button>
+                <div id="secure-data" class="result-container hidden"></div>
+                <div id="secure-data-error" class="error hidden"></div>
+            </div>
+        </div>
+        
+        <div class="debug-section">
+            <div class="debug-header">
+                <h2><i class="fas fa-bug"></i> Connection Debugger</h2>
+                <div>
+                    <span class="status-indicator" id="status-indicator"></span>
+                    <span id="status-text">Checking connection...</span>
+                </div>
+            </div>
+            
+            <div class="connection-test">
+                <button class="test-btn" id="test-cors">
+                    <i class="fas fa-plug"></i> Test CORS
+                </button>
+                <button class="test-btn" id="test-api">
+                    <i class="fas fa-code"></i> Test API Connection
+                </button>
+            </div>
+            
+            <div class="api-status">
+                <div class="status-item">
+                    <div class="status-icon" id="cors-icon"><i class="fas fa-sync fa-spin"></i></div>
+                    <div>CORS Configuration: <span id="cors-status">Testing...</span></div>
+                </div>
+                <div class="status-item">
+                    <div class="status-icon" id="api-icon"><i class="fas fa-sync fa-spin"></i></div>
+                    <div>API Connection: <span id="api-status">Testing...</span></div>
+                </div>
+            </div>
+            
+            <div class="form-group" style="margin-top: 1.5rem;">
+                <label for="api-base-url"><i class="fas fa-link"></i> API Base URL</label>
+                <input type="text" id="api-base-url" placeholder="http://donnysavagebot.publicvm.com">
+            </div>
+            
+            <div class="debug-content" id="debug-output">
+                // Debug output will appear here
+                // Check browser console for detailed error messages
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>Bot Dashboard Example Project &copy; 2025 | All data is securely handled and automatically deleted after 90 days</p>
+    </footer>
+
+    <script>
+        // DOM Elements
+        const apiKeyInput = document.getElementById('api-key-input');
+        const saveApiKeyBtn = document.getElementById('save-api-key');
+        const apiKeyError = document.getElementById('api-key-error');
+        const apiKeySuccess = document.getElementById('api-key-success');
+        const dashboard = document.getElementById('dashboard');
+        const guildCount = document.getElementById('guild-count');
+        const userCount = document.getElementById('user-count');
+        const uptime = document.getElementById('uptime');
+        const guildId = document.getElementById('guild-id');
+        const memberCount = document.getElementById('member-count');
+        const refreshStatsBtn = document.getElementById('refresh-stats');
+        const userIdInput = document.getElementById('user-id');
+        const verifyMemberBtn = document.getElementById('verify-member');
+        const memberResult = document.getElementById('member-result');
+        const memberError = document.getElementById('member-error');
+        const getSecureDataBtn = document.getElementById('get-secure-data');
+        const secureData = document.getElementById('secure-data');
+        const secureDataError = document.getElementById('secure-data-error');
+        const apiBaseUrlInput = document.getElementById('api-base-url');
+        const debugOutput = document.getElementById('debug-output');
+        const statusIndicator = document.getElementById('status-indicator');
+        const statusText = document.getElementById('status-text');
+        const testCorsBtn = document.getElementById('test-cors');
+        const testApiBtn = document.getElementById('test-api');
+        const corsIcon = document.getElementById('cors-icon');
+        const apiIcon = document.getElementById('api-icon');
+        const corsStatus = document.getElementById('cors-status');
+        const apiStatus = document.getElementById('api-status');
+        
+        // API Configuration
+        let API_BASE_URL = 'http://donnysavagebot.publicvm.com';
+        
+        // Initialize
+        window.addEventListener('DOMContentLoaded', () => {
+            // Load saved API key
+            const savedKey = localStorage.getItem('bot-api-key');
+            if (savedKey) {
+                apiKeyInput.value = savedKey;
+                dashboard.classList.remove('hidden');
+                loadBotStats();
+            }
+            
+            // Load saved API base URL
+            const savedUrl = localStorage.getItem('api-base-url');
+            if (savedUrl) {
+                apiBaseUrlInput.value = savedUrl;
+                API_BASE_URL = savedUrl;
+            } else {
+                apiBaseUrlInput.value = API_BASE_URL;
+            }
+            
+            // Test initial connection
+            testAllConnections();
+        });
+        
+        // Format uptime seconds to readable format
+        function formatUptime(seconds) {
+            const days = Math.floor(seconds / (3600 * 24));
+            const hours = Math.floor((seconds % (3600 * 24)) / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = Math.floor(seconds % 60);
+            
+            return `${days > 0 ? `${days}d ` : ''}${hours}h ${minutes}m ${secs}s`;
+        }
+        
+        // Save API key to localStorage
+        saveApiKeyBtn.addEventListener('click', () => {
+            const key = apiKeyInput.value.trim();
+            if (!key) {
+                showError(apiKeyError, 'Please enter an API key');
+                return;
+            }
+            
+            localStorage.setItem('bot-api-key', key);
+            showSuccess(apiKeySuccess, 'API key saved successfully!');
+            hideError(apiKeyError);
+            dashboard.classList.remove('hidden');
+            loadBotStats();
+        });
+        
+        // Save API base URL when changed
+        apiBaseUrlInput.addEventListener('change', () => {
+            const url = apiBaseUrlInput.value.trim();
+            if (url) {
+                API_BASE_URL = url;
+                localStorage.setItem('api-base-url', url);
+                showSuccess(apiKeySuccess, `API URL updated to: ${url}`);
+                testAllConnections();
+            }
+        });
+        
+        // Load bot statistics
+        function loadBotStats() {
+            const apiKey = localStorage.getItem('bot-api-key');
+            if (!apiKey) return;
+            
+            // Show loading state
+            guildCount.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            userCount.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            uptime.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            guildId.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            memberCount.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            
+            // Get bot stats
+            fetch(`${API_BASE_URL}/api/bot-stats`, {
+                headers: {
+                    'X-API-Key': apiKey
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        throw new Error(`HTTP ${response.status}: ${text || 'Unknown error'}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                guildCount.textContent = data.guilds || '0';
+                userCount.textContent = (data.users || '0').toLocaleString();
+                uptime.textContent = formatUptime(data.uptime || 0);
+            })
+            .catch(error => {
+                guildCount.textContent = 'Error';
+                userCount.textContent = 'Error';
+                uptime.textContent = 'Error';
+                console.error('Bot stats error:', error);
+                logToDebug(`Bot stats error: ${error.message}`);
+            });
+            
+            // Get secure data to show guild ID
+            fetch(`${API_BASE_URL}/api/secure-data`, {
+                headers: {
+                    'X-API-Key': apiKey
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        throw new Error(`HTTP ${response.status}: ${text || 'Unknown error'}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                guildId.textContent = data.guildId || '-';
+            })
+            .catch(error => {
+                guildId.textContent = 'Error';
+                console.error('Secure data error:', error);
+                logToDebug(`Secure data error: ${error.message}`);
+            });
+            
+            // Get server members count
+            fetch(`${API_BASE_URL}/api/verify-member`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-API-Key': apiKey
+                },
+                body: JSON.stringify({ userId: 'count' })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        throw new Error(`HTTP ${response.status}: ${text || 'Unknown error'}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                memberCount.textContent = data.memberCount || '0';
+            })
+            .catch(error => {
+                memberCount.textContent = 'Error';
+                console.error('Member count error:', error);
+                logToDebug(`Member count error: ${error.message}`);
+            });
+        }
+        
+        // Refresh stats button
+        refreshStatsBtn.addEventListener('click', loadBotStats);
+        
+        // Verify member
+        verifyMemberBtn.addEventListener('click', () => {
+            const userId = userIdInput.value.trim();
+            const apiKey = localStorage.getItem('bot-api-key');
+            
+            if (!userId) {
+                showError(memberError, 'Please enter a user ID');
+                return;
+            }
+            
+            hideError(memberError);
+            memberResult.classList.add('hidden');
+            
+            // Show loading
+            memberResult.innerHTML = '<div style="text-align:center; padding:2rem;"><i class="fas fa-spinner fa-spin fa-2x"></i></div>';
+            memberResult.classList.remove('hidden');
+            
+            fetch(`${API_BASE_URL}/api/verify-member`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-API-Key': apiKey
+                },
+                body: JSON.stringify({ userId })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => {
+                        throw new Error(err.error || `HTTP ${response.status}: Failed to verify member`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                memberResult.classList.remove('hidden');
+                memberResult.innerHTML = `
+                    <div class="member-info">
+                        <img src="${data.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="Avatar" class="avatar">
+                        <div>
+                            <h3>${data.username || 'Unknown'}#${data.discriminator || '0000'}</h3>
+                            <p><strong>ID:</strong> ${data.id || 'N/A'}</p>
+                            <p><strong>Joined Server:</strong> ${data.joinedAt ? new Date(data.joinedAt).toLocaleString() : 'Unknown'}</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h4>Roles:</h4>
+                        <div>
+                            ${data.roles && data.roles.length > 0 
+                                ? data.roles.map(role => 
+                                    `<span class="role-badge">${role.name || 'Unknown Role'}</span>`
+                                ).join('') 
+                                : '<p>No roles assigned</p>'}
+                        </div>
+                    </div>
+                    <div style="margin-top: 1.5rem; background: rgba(59, 165, 93, 0.1); padding: 1rem; border-radius: 8px;">
+                        <i class="fas fa-check-circle"></i> ✅ Yes, this member is in the server
+                    </div>
+                `;
+            })
+            .catch(error => {
+                showError(memberError, error.message);
+                memberResult.classList.add('hidden');
+                console.error('Member verification error:', error);
+                logToDebug(`Member verification error: ${error.message}`);
+            });
+        });
+        
+        // Get secure data
+        getSecureDataBtn.addEventListener('click', () => {
+            const apiKey = localStorage.getItem('bot-api-key');
+            
+            hideError(secureDataError);
+            secureData.classList.add('hidden');
+            
+            // Show loading
+            secureData.innerHTML = '<div style="text-align:center; padding:2rem;"><i class="fas fa-spinner fa-spin fa-2x"></i></div>';
+            secureData.classList.remove('hidden');
+            
+            fetch(`${API_BASE_URL}/api/secure-data`, {
+                headers: {
+                    'X-API-Key': apiKey
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => {
+                        throw new Error(err.error || `HTTP ${response.status}: Failed to load secure data`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                secureData.classList.remove('hidden');
+                secureData.innerHTML = `
+                    <h3>Secure Access Granted</h3>
+                    <p><strong>Status:</strong> ${data.status || 'Success'}</p>
+                    <p><strong>Service:</strong> ${data.service || 'N/A'}</p>
+                    <p><strong>Guild ID:</strong> ${data.guildId || 'N/A'}</p>
+                    <p><strong>Message:</strong> ${data.message || 'No additional message'}</p>
+                    <div style="margin-top: 1rem; background: rgba(59, 165, 93, 0.1); padding: 1rem; border-radius: 8px;">
+                        <i class="fas fa-check-circle"></i> This data is protected by your API key and can only be accessed by authorized services.
+                    </div>
+                `;
+            })
+            .catch(error => {
+                showError(secureDataError, error.message);
+                secureData.classList.add('hidden');
+                console.error('Secure data error:', error);
+                logToDebug(`Secure data error: ${error.message}`);
+            });
+        });
+        
+        // Test all connections
+        function testAllConnections() {
+            testCors();
+            testApiConnection();
+        }
+        
+        // Test CORS
+        function testCors() {
+            corsIcon.innerHTML = '<i class="fas fa-sync fa-spin"></i>';
+            corsStatus.textContent = 'Testing...';
+            
+            // Test OPTIONS request
+            fetch(API_BASE_URL, {
+                method: 'OPTIONS'
+            })
+            .then(response => {
+                if (response.headers.get('access-control-allow-origin')) {
+                    corsIcon.innerHTML = '<i class="fas fa-check-circle status-success"></i>';
+                    corsStatus.innerHTML = '<span class="status-success">Enabled</span> - Your server supports CORS';
+                } else {
+                    corsIcon.innerHTML = '<i class="fas fa-exclamation-triangle status-failure"></i>';
+                    corsStatus.innerHTML = '<span class="status-failure">Disabled</span> - Add CORS headers to your bot server';
+                    logToDebug('CORS is not enabled. Add this to your bot server:');
+                    logToDebug('app.use((req, res, next) => {');
+                    logToDebug('  res.header("Access-Control-Allow-Origin", "*");');
+                    logToDebug('  res.header("Access-Control-Allow-Headers", "*");');
+                    logToDebug('  next();');
+                    logToDebug('});');
+                }
+            })
+            .catch(error => {
+                corsIcon.innerHTML = '<i class="fas fa-times-circle status-failure"></i>';
+                corsStatus.innerHTML = '<span class="status-failure">Error</span>';
+                corsStatus.innerHTML += ` - ${error.message}`;
+                logToDebug(`CORS test error: ${error.message}`);
+            });
+        }
+        
+        // Test API connection
+        function testApiConnection() {
+            apiIcon.innerHTML = '<i class="fas fa-sync fa-spin"></i>';
+            apiStatus.textContent = 'Testing...';
+            
+            fetch(`${API_BASE_URL}/api/secure-data`, {
+                headers: {
+                    'X-API-Key': 'test-key'
+                }
+            })
+            .then(response => {
+                if (response.status === 401 || response.status === 403) {
+                    // We expect 401/403 which means the endpoint exists
+                    apiIcon.innerHTML = '<i class="fas fa-check-circle status-success"></i>';
+                    apiStatus.innerHTML = '<span class="status-success">Reachable</span> - Endpoint is responding';
+                    updateStatusIndicator(true);
+                } else {
+                    apiIcon.innerHTML = '<i class="fas fa-check-circle status-success"></i>';
+                    apiStatus.innerHTML = `<span class="status-success">Reachable</span> - HTTP ${response.status}`;
+                    updateStatusIndicator(true);
+                }
+            })
+            .catch(error => {
+                apiIcon.innerHTML = '<i class="fas fa-times-circle status-failure"></i>';
+                apiStatus.innerHTML = `<span class="status-failure">Unreachable</span> - ${error.message}`;
+                logToDebug(`API connection error: ${error.message}`);
+                updateStatusIndicator(false);
+            });
+        }
+        
+        // Update status indicator
+        function updateStatusIndicator(isOnline) {
+            if (isOnline) {
+                statusIndicator.className = 'status-indicator status-online';
+                statusText.textContent = 'Online - Connection successful';
+            } else {
+                statusIndicator.className = 'status-indicator status-offline';
+                statusText.textContent = 'Offline - Could not connect to bot';
+            }
+        }
+        
+        // Log to debug console
+        function logToDebug(message) {
+            debugOutput.textContent += `> ${message}\n`;
+            debugOutput.scrollTop = debugOutput.scrollHeight;
+        }
+        
+        // Helper functions
+        function showError(element, message) {
+            element.textContent = message;
+            element.classList.remove('hidden');
+        }
+        
+        function showSuccess(element, message) {
+            element.textContent = message;
+            element.classList.remove('hidden');
+            setTimeout(() => {
+                element.classList.add('hidden');
+            }, 5000);
+        }
+        
+        function hideError(element) {
+            element.textContent = '';
+            element.classList.add('hidden');
+        }
+        
+        // Set up test buttons
+        testCorsBtn.addEventListener('click', testCors);
+        testApiBtn.addEventListener('click', testApiConnection);
+        
+        // Initialize debug console
+        logToDebug('Initializing Bot Dashboard Example Project...');
+        logToDebug(`Using API base URL: ${API_BASE_URL}`);
+        logToDebug('Testing connections...');
+    </script>
+</body>
+</html>
