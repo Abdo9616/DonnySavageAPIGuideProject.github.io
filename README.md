@@ -1,6 +1,6 @@
 # DonnySavage Bot Dashboard
 
-![Dashboard Preview](https://via.placeholder.com/800x400?text=DonnySavage+Bot+Dashboard)
+
 
 A lightweight web dashboard for monitoring Discord server with DonnySavage Bot Api.
 
