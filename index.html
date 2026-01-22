@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Discord Server Dashboard Example Project</title>
+    <title>DonnySavage API - Integration Guide</title>
+    <meta name="description" content="Learn how to integrate DonnySavage Bot API into your projects. Monitor bot performance, verify server members, and access protected resources.">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -14,6 +15,8 @@
             --discord-red: #ed4245;
             --discord-light: #f2f3f5;
             --discord-purple: #8a2be2;
+            --card-glow: rgba(88, 101, 242, 0.15);
+            --card-border: rgba(88, 101, 242, 0.3);
         }
         
         * {
@@ -69,9 +72,9 @@
         .api-key-section {
             background: rgba(30, 31, 34, 0.7);
             padding: 2rem;
-            border-radius: 12px;
+            border-radius: 16px;
             margin-bottom: 2rem;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3), 0 0 0 1px var(--card-border);
             border: 1px solid #40444b;
             backdrop-filter: blur(5px);
         }
@@ -128,20 +131,44 @@
         }
         
         .card {
-            background: rgba(30, 31, 34, 0.7);
-            border-radius: 12px;
+            background: linear-gradient(145deg, rgba(30, 31, 34, 0.9) 0%, rgba(40, 42, 48, 0.8) 100%);
+            border-radius: 16px;
             padding: 1.8rem;
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
-            border: 1px solid #40444b;
-            backdrop-filter: blur(5px);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.35),
+                0 0 0 1px var(--card-border),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             display: flex;
             flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--discord-blurple), var(--discord-purple));
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
         
         .card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            box-shadow: 
+                0 12px 40px rgba(0, 0, 0, 0.45),
+                0 0 0 1px rgba(88, 101, 242, 0.5),
+                0 0 30px var(--card-glow),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        }
+        
+        .card:hover::before {
+            opacity: 1;
         }
         
         .card-header {
@@ -150,15 +177,22 @@
             align-items: center;
             margin-bottom: 1.5rem;
             padding-bottom: 1rem;
-            border-bottom: 1px solid #40444b;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         .card-header h2 {
             font-size: 1.4rem;
-            color: var(--discord-blurple);
+            background: linear-gradient(120deg, var(--discord-blurple), var(--discord-purple));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
             display: flex;
             align-items: center;
             gap: 10px;
+        }
+        
+        .card-header h2 i {
+            -webkit-text-fill-color: var(--discord-blurple);
         }
         
         .btn {
@@ -181,33 +215,50 @@
         }
         
         .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr)); /* Ensure columns can shrink */
-    gap: 1.2rem;
-    margin: 1rem 0;
-}
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 1.2rem;
+            margin: 1rem 0;
+        }
         
         .stat-box {
-    background: rgba(49, 51, 56, 0.5);
-    border-radius: 8px;
-    padding: 1.2rem;
-    text-align: center;
-    border: 1px solid #40444b;
-    transition: all 0.3s ease;
-    min-width: 0; /* Add this to allow shrinking */
-    overflow-wrap: break-word; /* Add this to wrap long content */
-}
-#guild-id {
-    font-size: 1.8rem; /* Slightly smaller font for long IDs */
-    word-break: break-all; /* Allow breaking anywhere in the ID */
-    overflow-wrap: anywhere; /* Wrap at any point */
-    line-height: 1.3; /* Better line spacing */
-    padding: 0 5px; /* Add some padding */
-}
+            background: linear-gradient(145deg, rgba(49, 51, 56, 0.6) 0%, rgba(40, 42, 48, 0.4) 100%);
+            border-radius: 12px;
+            padding: 1.2rem;
+            text-align: center;
+            border: 1px solid rgba(88, 101, 242, 0.2);
+            transition: all 0.3s ease;
+            min-width: 0;
+            overflow-wrap: break-word;
+            position: relative;
+        }
+        
+        .stat-box::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 12px;
+            background: linear-gradient(120deg, transparent, var(--card-glow), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
         
         .stat-box:hover {
-            background: rgba(49, 51, 56, 0.7);
+            background: linear-gradient(145deg, rgba(49, 51, 56, 0.8) 0%, rgba(50, 52, 58, 0.6) 100%);
             transform: translateY(-3px);
+            border-color: rgba(88, 101, 242, 0.4);
+        }
+        
+        .stat-box:hover::after {
+            opacity: 1;
+        }
+        
+        #guild-id {
+            font-size: 1.8rem;
+            word-break: break-all;
+            overflow-wrap: anywhere;
+            line-height: 1.3;
+            padding: 0 5px;
         }
         
         .stat-value {
@@ -218,11 +269,15 @@
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
+            position: relative;
+            z-index: 1;
         }
         
         .stat-label {
             color: #b5bac1;
             font-size: 0.95rem;
+            position: relative;
+            z-index: 1;
         }
         
         .form-group {
@@ -256,11 +311,11 @@
         .result-container {
             margin-top: 1.5rem;
             background: rgba(49, 51, 56, 0.5);
-            border-radius: 8px;
+            border-radius: 12px;
             padding: 1.5rem;
             max-height: 400px;
             overflow-y: auto;
-            border: 1px solid #40444b;
+            border: 1px solid rgba(88, 101, 242, 0.2);
             flex-grow: 1;
         }
         
@@ -322,17 +377,29 @@
             border-top: 1px solid #40444b;
         }
         
+        footer a {
+            color: var(--discord-blurple);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+        
+        footer a:hover {
+            color: var(--discord-purple);
+            text-decoration: underline;
+        }
+        
         .hidden {
             display: none;
         }
         
         .debug-section {
-            background: rgba(30, 31, 34, 0.7);
-            border-radius: 12px;
+            background: linear-gradient(145deg, rgba(30, 31, 34, 0.9) 0%, rgba(40, 42, 48, 0.8) 100%);
+            border-radius: 16px;
             padding: 1.8rem;
             margin-top: 2rem;
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
-            border: 1px solid #40444b;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.35),
+                0 0 0 1px var(--card-border);
             backdrop-filter: blur(5px);
         }
         
@@ -466,11 +533,11 @@
         }
         
         .member-count-container {
-            background: rgba(49, 51, 56, 0.5);
-            border-radius: 8px;
+            background: linear-gradient(145deg, rgba(49, 51, 56, 0.6) 0%, rgba(40, 42, 48, 0.4) 100%);
+            border-radius: 12px;
             padding: 1.2rem;
             text-align: center;
-            border: 1px solid #40444b;
+            border: 1px solid rgba(88, 101, 242, 0.2);
             margin-bottom: 1.5rem;
         }
         
@@ -489,13 +556,13 @@
         }
 
         @media (max-width: 480px) {
-    .stats-grid {
-        grid-template-columns: 1fr;
-    }
-    #guild-id {
-        font-size: 1.5rem; /* Smaller font on mobile */
-    }
-
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            #guild-id {
+                font-size: 1.5rem;
+            }
             
             .stat-box {
                 padding: 1rem;
@@ -509,26 +576,26 @@
                 width: 100%;
                 justify-content: center;
             }
+            
             .stats-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr)); /* Fix grid sizing */
-}
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
 
-.stat-box {
-    min-width: 0; /* Prevent overflow */
-    overflow: hidden; /* Hide any overflow */
-}
+            .stat-box {
+                min-width: 0;
+                overflow: hidden;
+            }
 
-.stat-value {
-    font-size: clamp(1.5rem, 2vw, 2.2rem); /* Responsive font size */
-    word-wrap: break-word; /* Allow breaking long numbers */
-}
-
+            .stat-value {
+                font-size: clamp(1.5rem, 2vw, 2.2rem);
+                word-wrap: break-word;
+            }
         }
     </style>
 </head>
 <body>
     <header>
-        <h1><i class="fas fa-robot"></i>Discord Server Dashboard Example Project</h1>
+        <h1><i class="fas fa-robot"></i> DonnySavage API Integration Guide</h1>
         <p class="subtitle">Monitor DonnySavage's performance, verify server members, and access protected resources</p>
     </header>
     
@@ -543,7 +610,7 @@
                 <ul>
                     <li>Generate an API key in Discord using: <code>/auth generate-key service:Website expiry:0</code></li>
                     <li>Enter the key below and save</li>
-                    <li>Ensure the bot's API URL is correctly set to <code>https://bot.api.donnysavagebot.publicvm.com</code> in the configuration</li>
+                    <li>Ensure the bot's API URL is correctly set to <code>https://341435.site.bot-hosting.cloud</code> in the configuration</li>
                 </ul>
             </div>
             
@@ -629,19 +696,12 @@
             </div>
             
             <div class="connection-test">
-                <button class="test-btn" id="test-cors">
-                    <i class="fas fa-plug"></i> Test CORS
-                </button>
                 <button class="test-btn" id="test-api">
                     <i class="fas fa-code"></i> Test API Connection
                 </button>
             </div>
             
             <div class="api-status">
-                <div class="status-item">
-                    <div class="status-icon" id="cors-icon"><i class="fas fa-sync fa-spin"></i></div>
-                    <div>CORS Configuration: <span id="cors-status">Testing...</span></div>
-                </div>
                 <div class="status-item">
                     <div class="status-icon" id="api-icon"><i class="fas fa-sync fa-spin"></i></div>
                     <div>API Connection: <span id="api-status">Testing...</span></div>
@@ -650,21 +710,29 @@
             
             <div class="form-group" style="margin-top: 1.5rem;">
                 <label for="api-base-url"><i class="fas fa-link"></i> API Base URL</label>
-                <input type="text" id="api-base-url" placeholder="https://bot.api.donnysavagebot.publicvm.com">
+                <input type="text" id="api-base-url" placeholder="https://341435.site.bot-hosting.cloud">
             </div>
             
             <div class="debug-content" id="debug-output">
-                // Debug output will appear here
-                // Check browser console for detailed error messages
+// Debug output will appear here
+// Check browser console for detailed error messages
             </div>
         </div>
     </div>
     
     <footer>
-        <p>An Example Dashboard Project To Learn About DonnySavage API &copy; 2025 | All data is securely handled and automatically deleted after 90 days</p>
+        <p>DonnySavage API Integration Guide &copy; <span id="copyright-year"></span> | <a href="https://abdo9616.github.io/DonnySavageApiDocumentationGuide.github.io" target="_blank">View Full Documentation</a></p>
     </footer>
 
     <script>
+        // Set dynamic copyright year
+        (function() {
+            const startYear = 2025;
+            const currentYear = new Date().getFullYear();
+            const yearText = currentYear > startYear ? `${startYear}-${currentYear}` : `${startYear}`;
+            document.getElementById('copyright-year').textContent = yearText;
+        })();
+
         // DOM Elements
         const apiKeyInput = document.getElementById('api-key-input');
         const saveApiKeyBtn = document.getElementById('save-api-key');
@@ -688,15 +756,12 @@
         const debugOutput = document.getElementById('debug-output');
         const statusIndicator = document.getElementById('status-indicator');
         const statusText = document.getElementById('status-text');
-        const testCorsBtn = document.getElementById('test-cors');
         const testApiBtn = document.getElementById('test-api');
-        const corsIcon = document.getElementById('cors-icon');
         const apiIcon = document.getElementById('api-icon');
-        const corsStatus = document.getElementById('cors-status');
         const apiStatus = document.getElementById('api-status');
         
         // API Configuration
-        let API_BASE_URL = 'https://bot.api.donnysavagebot.publicvm.com';
+        let API_BASE_URL = 'https://341435.site.bot-hosting.cloud';
         
         // Initialize
         window.addEventListener('DOMContentLoaded', () => {
@@ -718,7 +783,7 @@
             }
             
             // Test initial connection
-            testAllConnections();
+            testApiConnection();
         });
         
         // Format uptime seconds to readable format
@@ -753,7 +818,7 @@
                 API_BASE_URL = url;
                 localStorage.setItem('api-base-url', url);
                 showSuccess(apiKeySuccess, `API URL updated to: ${url}`);
-                testAllConnections();
+                testApiConnection();
             }
         });
         
@@ -961,44 +1026,6 @@
             });
         });
         
-        // Test all connections
-        function testAllConnections() {
-            testCors();
-            testApiConnection();
-        }
-        
-        // Test CORS
-        function testCors() {
-            corsIcon.innerHTML = '<i class="fas fa-sync fa-spin"></i>';
-            corsStatus.textContent = 'Testing...';
-            
-            // Test OPTIONS request
-            fetch(API_BASE_URL, {
-                method: 'OPTIONS'
-            })
-            .then(response => {
-                if (response.headers.get('access-control-allow-origin')) {
-                    corsIcon.innerHTML = '<i class="fas fa-check-circle status-success"></i>';
-                    corsStatus.innerHTML = '<span class="status-success">Enabled</span> - Your server supports CORS';
-                } else {
-                    corsIcon.innerHTML = '<i class="fas fa-exclamation-triangle status-failure"></i>';
-                    corsStatus.innerHTML = '<span class="status-failure">Disabled</span> - Add CORS headers to your bot server';
-                    logToDebug('CORS is not enabled. Add this to your bot server:');
-                    logToDebug('app.use((req, res, next) => {');
-                    logToDebug('  res.header("Access-Control-Allow-Origin", "*");');
-                    logToDebug('  res.header("Access-Control-Allow-Headers", "*");');
-                    logToDebug('  next();');
-                    logToDebug('});');
-                }
-            })
-            .catch(error => {
-                corsIcon.innerHTML = '<i class="fas fa-times-circle status-failure"></i>';
-                corsStatus.innerHTML = '<span class="status-failure">Error</span>';
-                corsStatus.innerHTML += ` - ${error.message}`;
-                logToDebug(`CORS test error: ${error.message}`);
-            });
-        }
-        
         // Test API connection
         function testApiConnection() {
             apiIcon.innerHTML = '<i class="fas fa-sync fa-spin"></i>';
@@ -1065,14 +1092,13 @@
             element.classList.add('hidden');
         }
         
-        // Set up test buttons
-        testCorsBtn.addEventListener('click', testCors);
+        // Set up test button
         testApiBtn.addEventListener('click', testApiConnection);
         
         // Initialize debug console
-        logToDebug('Initializing Bot Dashboard Example Project...');
+        logToDebug('Initializing DonnySavage API Integration Guide...');
         logToDebug(`Using API base URL: ${API_BASE_URL}`);
-        logToDebug('Testing connections...');
+        logToDebug('Testing connection...');
     </script>
 </body>
 </html>
